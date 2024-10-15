@@ -18,6 +18,4 @@
 	
 	<haxedef name="FLX_UNIT_TEST" />
 	<haxedef name="FLX_RECORD" />
-
-	<haxedef name="no-deprecation-warnings"/>
 </project>

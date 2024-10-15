@@ -1,8 +1,8 @@
 package flixel.ui;
 
-import openfl.display.BitmapData;
-import openfl.geom.Point;
-import openfl.geom.Rectangle;
+import flash.display.BitmapData;
+import flash.geom.Point;
+import flash.geom.Rectangle;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.FlxGraphic;
@@ -57,7 +57,7 @@ class FlxBar extends FlxSprite
 	/**
 	 * The percentage of how full the bar is (a value between 0 and 100)
 	 */
-	public var floorPercent(get, never):Int;
+	public var floorPercent(get, null):Int;
 
 	/**
 	 * The current value - must always be between min and max

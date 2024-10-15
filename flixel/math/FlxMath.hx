@@ -1,6 +1,6 @@
 package flixel.math;
 
-import openfl.geom.Rectangle;
+import flash.geom.Rectangle;
 import flixel.FlxG;
 import flixel.FlxSprite;
 #if FLX_TOUCH
@@ -270,17 +270,6 @@ class FlxMath
 			value += range * Std.int((min - value) / range + 1);
 
 		return min + (value - min) % range;
-	}
-
-	public static inline function wrapMax(value:Int, max:Int):Int
-	{
-		var range:Int = max + 1;
-		value = value % range;
-
-		if (value < 0)
-			value += range;
-
-		return value;
 	}
 
 	/**

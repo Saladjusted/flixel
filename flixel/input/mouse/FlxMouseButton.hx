@@ -40,8 +40,7 @@ class FlxMouseButton extends FlxInput<Int> implements IFlxDestroyable
 		#if FLX_POINTER_INPUT
 		else if (justReleased)
 		{
-			// FlxPoint.weak(justPressedPosition.x, justPressedPosition.y)
-			FlxG.swipes.push(new FlxSwipe(ID, justPressedPosition, FlxG.mouse.getScreenPosition(FlxPoint.weak()), justPressedTimeInTicks));
+			FlxG.swipes.push(new FlxSwipe(ID, justPressedPosition, FlxG.mouse.getScreenPosition(), justPressedTimeInTicks));
 		}
 		#end
 	}
@@ -83,7 +82,8 @@ class FlxMouseButton extends FlxInput<Int> implements IFlxDestroyable
 /**
  * These IDs are negative to avoid overlaps with possible touch point IDs.
  */
-enum abstract FlxMouseButtonID(Int) to Int
+@:enum
+abstract FlxMouseButtonID(Int) to Int
 {
 	var LEFT = -1;
 	var MIDDLE = -2;

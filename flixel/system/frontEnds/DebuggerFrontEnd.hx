@@ -1,6 +1,6 @@
 package flixel.system.frontEnds;
 
-import openfl.display.BitmapData;
+import flash.display.BitmapData;
 import flixel.FlxG;
 import flixel.input.keyboard.FlxKey;
 import flixel.system.debug.FlxDebugger.FlxDebuggerLayout;

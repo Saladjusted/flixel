@@ -1,9 +1,8 @@
 package flixel.graphics.frames;
 
-import flixel.FlxTypes;
-import openfl.display.BitmapData;
-import openfl.geom.Point;
-import openfl.geom.Rectangle;
+import flash.display.BitmapData;
+import flash.geom.Point;
+import flash.geom.Rectangle;
 import flixel.graphics.FlxGraphic;
 import flixel.math.FlxMatrix;
 import flixel.math.FlxPoint;
@@ -19,10 +18,10 @@ import haxe.ds.Vector;
  */
 class FlxFrame implements IFlxDestroyable
 {
-	static var point1:Point = new Point();
-	static var point2:Point = new Point();
-	static var rect:Rectangle = new Rectangle();
-	static var matrix:FlxMatrix = new FlxMatrix();
+	var point1:Point = new Point();
+	var point2:Point = new Point();
+	var rect:Rectangle = new Rectangle();
+	var matrix:FlxMatrix = new FlxMatrix();
 
 	/**
 	 * Sorts an array of `FlxFrame` objects by their name, e.g.
@@ -684,14 +683,16 @@ class FlxFrame implements IFlxDestroyable
  * Just enumeration of all types of frames.
  * Added for faster type detection with less usage of casting.
  */
-enum abstract FlxFrameType(ByteInt)
+@:enum
+abstract FlxFrameType(Int)
 {
 	var REGULAR = 0;
 	var EMPTY = 2;
 	var GLYPH = 3;
 }
 
-enum abstract FlxFrameAngle(ByteInt) from ByteInt to ByteInt
+@:enum
+abstract FlxFrameAngle(Int) from Int to Int
 {
 	var ANGLE_0 = 0;
 	var ANGLE_90 = 90;

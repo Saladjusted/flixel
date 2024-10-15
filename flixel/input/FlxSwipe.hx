@@ -4,11 +4,10 @@ import flixel.FlxG;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
 import flixel.util.FlxStringUtil;
-import flixel.util.FlxDestroyUtil;
 
 @:allow(flixel.input.mouse.FlxMouseButton)
 @:allow(flixel.input.touch.FlxTouch)
-class FlxSwipe implements IFlxDestroyable
+class FlxSwipe
 {
 	/**
 	 * Either LEFT_MOUSE, MIDDLE_MOUSE or RIGHT_MOUSE,
@@ -36,18 +35,6 @@ class FlxSwipe implements IFlxDestroyable
 		endPosition = EndPosition;
 		_startTimeInTicks = StartTimeInTicks;
 		_endTimeInTicks = FlxG.game.ticks;
-	}
-
-	public function destroy()
-	{
-		if(startPosition != null) {
-			startPosition.putWeak();
-			startPosition = null;
-		}
-		if(endPosition != null) {
-			endPosition.putWeak();
-			endPosition = null;
-		}
 	}
 
 	inline function toString():String

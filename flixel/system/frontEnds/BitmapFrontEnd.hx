@@ -1,6 +1,6 @@
 package flixel.system.frontEnds;
 
-import openfl.display.BitmapData;
+import flash.display.BitmapData;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxFrame;
 import flixel.math.FlxPoint;
@@ -9,7 +9,11 @@ import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.util.FlxColor;
 import openfl.Assets;
 #if !flash
+#if openfl_legacy
+import openfl.gl.GL;
+#else
 import lime.graphics.opengl.GL;
+#end
 #end
 
 /**
@@ -344,7 +348,7 @@ class BitmapFrontEnd
 
 		__doNotDelete = false;
 
-		for (g in __countCache)
+		for(g in __countCache)
 			g.useCount -= 10;
 
 		__countCache = [];
@@ -353,8 +357,7 @@ class BitmapFrontEnd
 		{
 			var obj = __cacheCopy.get(key);
 			var objN = get(key);
-			if (objN != null && objN != obj)
-			{
+			if (objN != null && objN != obj) {
 				obj.destroy();
 			}
 			if (obj.mustDestroy || (obj.destroyOnNoUse && !obj.persist && obj.useCount <= 0))
@@ -379,23 +382,19 @@ class BitmapFrontEnd
 
 		__doNotDelete = true;
 		__cacheCopy = [];
-		for (k => e in _cache)
-		{
-			if (e == null)
-				continue;
-			if (e.assetsKey != null)
-			{
+		for (k=>e in _cache) {
+			if (e == null) continue;
+			if (e.assetsKey != null) {
 				__countCache.push(e);
 				e.useCount += 10;
-			}
-			else if (e.destroyOnNoUse)
-			{
+			} else if (e.destroyOnNoUse) {
 				FlxG.bitmap.removeByKey(k);
 				continue;
 			}
 			e.mustDestroy = true;
 			__cacheCopy.set(k, e);
 		}
+		
 	}
 
 	inline function removeKey(key:String):Void

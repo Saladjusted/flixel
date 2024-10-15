@@ -21,8 +21,8 @@ import flixel.math.FlxPoint;
 import flixel.util.FlxDestroyUtil;
 import flixel.util.FlxStringUtil;
 #if FLX_GAMEINPUT_API
-import openfl.ui.GameInputControl;
-import openfl.ui.GameInputDevice;
+import flash.ui.GameInputControl;
+import flash.ui.GameInputDevice;
 import flixel.math.FlxMath;
 #elseif FLX_JOYSTICK_API
 import flixel.math.FlxPoint;
@@ -733,14 +733,20 @@ class FlxGamepad implements IFlxDestroyable
 	{
 		if (stick == null)
 			return 0;
-		return if (deadZoneMode == CIRCULAR) getAnalogAxisValueCircular(stick, stick.x); else getAnalogAxisValueIndependent(stick.x);
+		return if (deadZoneMode == CIRCULAR)
+			getAnalogAxisValueCircular(stick, stick.x);
+		else
+			getAnalogAxisValueIndependent(stick.x);
 	}
 
 	function getAnalogYAxisValue(stick:FlxGamepadAnalogStick):Float
 	{
 		if (stick == null)
 			return 0;
-		return if (deadZoneMode == CIRCULAR) getAnalogAxisValueCircular(stick, stick.y); else getAnalogAxisValueIndependent(stick.y);
+		return if (deadZoneMode == CIRCULAR)
+			getAnalogAxisValueCircular(stick, stick.y);
+		else
+			getAnalogAxisValueIndependent(stick.y);
 	}
 
 	function getAnalogAxisValueCircular(stick:FlxGamepadAnalogStick, axisID:Int):Float
@@ -872,7 +878,7 @@ class FlxGamepad implements IFlxDestroyable
 	{
 		return _deadZone = deadZone;
 	}
-
+	
 	/** 
 	 * @since 4.8.0
 	 */

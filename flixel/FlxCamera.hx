@@ -2,14 +2,14 @@ package flixel;
 
 import flixel.graphics.tile.FlxGraphicsShader;
 import openfl.filters.ShaderFilter;
-import openfl.display.Bitmap;
-import openfl.display.BitmapData;
-import openfl.display.DisplayObject;
-import openfl.display.Graphics;
-import openfl.display.Sprite;
-import openfl.geom.ColorTransform;
-import openfl.geom.Point;
-import openfl.geom.Rectangle;
+import flash.display.Bitmap;
+import flash.display.BitmapData;
+import flash.display.DisplayObject;
+import flash.display.Graphics;
+import flash.display.Sprite;
+import flash.geom.ColorTransform;
+import flash.geom.Point;
+import flash.geom.Rectangle;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.tile.FlxDrawBaseItem;
@@ -30,7 +30,7 @@ import openfl.Vector;
 
 using flixel.util.FlxColorTransformUtil;
 
-typedef FlxDrawItem = flixel.graphics.tile.FlxDrawQuadsItem;
+typedef FlxDrawItem = #if FLX_DRAW_QUADS flixel.graphics.tile.FlxDrawQuadsItem; #else flixel.graphics.tile.FlxDrawTilesItem; #end
 
 /**
  * The camera class is used to display the game's visuals.
@@ -134,7 +134,7 @@ class FlxCamera extends FlxBasic
 	 * Values are bounded between `0.0` and `FlxG.updateFrameRate / 60` for consistency across framerates.
 	 * The maximum value means no camera easing. A value of `0` means the camera does not move.
 	 */
-	public var followLerp(default, set):Float = 1;
+	public var followLerp(default, set):Float = 60 / FlxG.updateFramerate;
 
 	/**
 	 * Whenever target following is enabled. Defaults to `true`.
@@ -669,19 +669,21 @@ class FlxCamera extends FlxBasic
 		#if FLX_RENDER_TRIANGLE
 		return startTrianglesBatch(graphic, smooth, colored, blend);
 		#else
+		var itemToReturn = null;
+		var blendInt:Int = FlxDrawBaseItem.blendToInt(blend);
+
 		if (_currentDrawItem != null
 			&& _currentDrawItem.type == FlxDrawItemType.TILES
 			&& _headTiles.graphics == graphic
 			&& _headTiles.colored == colored
 			&& _headTiles.hasColorOffsets == hasColorOffsets
+			&& _headTiles.blending == blendInt
 			&& _headTiles.blend == blend
 			&& _headTiles.antialiasing == smooth
 			&& _headTiles.shader == shader)
 		{
 			return _headTiles;
 		}
-
-		var itemToReturn = null;
 
 		if (_storageTilesHead != null)
 		{
@@ -699,6 +701,7 @@ class FlxCamera extends FlxBasic
 		itemToReturn.antialiasing = smooth;
 		itemToReturn.colored = colored;
 		itemToReturn.hasColorOffsets = hasColorOffsets;
+		itemToReturn.blending = blendInt;
 		itemToReturn.blend = blend;
 		itemToReturn.shader = shader;
 
@@ -725,11 +728,14 @@ class FlxCamera extends FlxBasic
 	public function startTrianglesBatch(graphic:FlxGraphic, smoothing:Bool = false, isColored:Bool = false, ?blend:BlendMode, ?hasColorOffsets:Bool,
 			?shader:FlxShader):FlxDrawTrianglesItem
 	{
+		var blendInt:Int = FlxDrawBaseItem.blendToInt(blend);
+
 		if (_currentDrawItem != null
 			&& _currentDrawItem.type == FlxDrawItemType.TRIANGLES
 			&& _headTriangles.graphics == graphic
 			&& _headTriangles.antialiasing == smoothing
-			&& _headTriangles.colored == isColored #if !flash
+			&& _headTriangles.colored == isColored
+			&& _headTriangles.blending == blendInt #if !flash
 			&& _headTriangles.hasColorOffsets == hasColorOffsets
 			&& _headTriangles.shader == shader #end
 		)
@@ -745,6 +751,7 @@ class FlxCamera extends FlxBasic
 			?shader:FlxShader):FlxDrawTrianglesItem
 	{
 		var itemToReturn:FlxDrawTrianglesItem = null;
+		var blendInt:Int = FlxDrawBaseItem.blendToInt(blend);
 
 		if (_storageTrianglesHead != null)
 		{
@@ -761,6 +768,7 @@ class FlxCamera extends FlxBasic
 		itemToReturn.graphics = graphic;
 		itemToReturn.antialiasing = smoothing;
 		itemToReturn.colored = isColored;
+		itemToReturn.blending = blendInt;
 		#if !flash
 		itemToReturn.hasColorOffsets = hasColorOffsets;
 		itemToReturn.shader = shader;
@@ -1089,7 +1097,7 @@ class FlxCamera extends FlxBasic
 	 * @param   Zoom     The initial zoom level of the camera.
 	 *                   A zoom level of 2 will make all pixels display at 2x resolution.
 	 */
-	public function new(X:Float = 0, Y:Float = 0, Width:Int = 0, Height:Int = 0, Zoom:Float = 0)
+	public function new(X:Int = 0, Y:Int = 0, Width:Int = 0, Height:Int = 0, Zoom:Float = 0)
 	{
 		super();
 
@@ -1204,38 +1212,27 @@ class FlxCamera extends FlxBasic
 		super.destroy();
 	}
 
-	var paused:Bool = false;
-
 	/**
 	 * Updates the camera scroll as well as special effects like screen-shake or fades.
 	 */
 	override public function update(elapsed:Float):Void
 	{
 		// follow the target, if there is one
-		if (target != null && followEnabled && !paused)
+		if (target != null && followEnabled)
 		{
 			updateFollow();
 		}
 
 		updateScroll();
-		if (!paused)
-		{
-			updateFlash(elapsed);
-			updateFade(elapsed);
-		}
+		updateFlash(elapsed);
+		updateFade(elapsed);
 
 		flashSprite.filters = filtersEnabled ? _filters : null;
 
 		updateFlashSpritePosition();
-		if (!paused)
-			updateShake(elapsed);
-		else
-		{
-			flashSprite.x += lastShakeX;
-			flashSprite.y += lastShakeY;
-		}
+		updateShake(elapsed);
 
-		if (filtersEnabled && flashSprite.filters != null)
+		if (filtersEnabled && flashSprite.filters != null && _scrollRect != null)
 		{
 			// var rect = _scrollRect.scrollRect;
 
@@ -1375,14 +1372,14 @@ class FlxCamera extends FlxBasic
 				_lastTargetPosition.y = target.y;
 			}
 
-			if (followLerp == Math.POSITIVE_INFINITY)
+			if (followLerp >= 60 / FlxG.updateFramerate)
 			{
 				scroll.copyFrom(_scrollTarget); // no easing
 			}
 			else
 			{
-				scroll.x = FlxMath.lerp(scroll.x, _scrollTarget.x, followLerp * FlxG.elapsed * 60);
-				scroll.y = FlxMath.lerp(scroll.y, _scrollTarget.y, followLerp * FlxG.elapsed * 60);
+				scroll.x += (_scrollTarget.x - scroll.x) * followLerp * FlxG.updateFramerate / 60;
+				scroll.y += (_scrollTarget.y - scroll.y) * followLerp * FlxG.updateFramerate / 60;
 			}
 		}
 	}
@@ -1432,13 +1429,8 @@ class FlxCamera extends FlxBasic
 			_fxFadeComplete();
 	}
 
-	var lastShakeX = 0.0;
-	var lastShakeY = 0.0;
-
 	function updateShake(elapsed:Float):Void
 	{
-		lastShakeX = 0.0;
-		lastShakeY = 0.0;
 		if (_fxShakeDuration > 0)
 		{
 			_fxShakeDuration -= elapsed;
@@ -1453,11 +1445,11 @@ class FlxCamera extends FlxBasic
 			{
 				if (_fxShakeAxes.x)
 				{
-					flashSprite.x += lastShakeX = FlxG.random.float(-_fxShakeIntensity * width, _fxShakeIntensity * width) * zoom * FlxG.scaleMode.scale.x;
+					flashSprite.x += FlxG.random.float(-_fxShakeIntensity * width, _fxShakeIntensity * width) * zoom * FlxG.scaleMode.scale.x;
 				}
 				if (_fxShakeAxes.y)
 				{
-					flashSprite.y += lastShakeY = FlxG.random.float(-_fxShakeIntensity * height, _fxShakeIntensity * height) * zoom * FlxG.scaleMode.scale.y;
+					flashSprite.y += FlxG.random.float(-_fxShakeIntensity * height, _fxShakeIntensity * height) * zoom * FlxG.scaleMode.scale.y;
 				}
 			}
 		}

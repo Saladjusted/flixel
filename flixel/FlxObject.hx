@@ -1,7 +1,6 @@
 package flixel;
 
-import flixel.FlxTypes;
-import openfl.display.Graphics;
+import flash.display.Graphics;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
@@ -86,13 +85,6 @@ class FlxObject extends FlxBasic
 	 * Don't modify this unless your objects are passing through each other.
 	 */
 	public static var SEPARATE_BIAS:Float = 4;
-
-	/**
-	 * The default `moves` value of all future `FlxObjects` and `FlxSprites`
-	 * Note: Has no effect on `FlxTexts`, `FlxTilemaps` and `FlxTileBlocks`
-	 * @since 5.6.0
-	 */
-	public static var defaultMoves:Bool = true;
 
 	/**
 	 * Generic value for "left". Used by `facing`, `allowCollisions`, and `touching`.
@@ -208,7 +200,8 @@ class FlxObject extends FlxBasic
 			case ALWAYS: true;
 			case IMMOVABLE: object2.immovable;
 			case HEAVIER: object2.immovable || object2.mass > object1.mass;
-		}}
+		}
+	}
 
 	/**
 	 * Internal function that computes overlap among two objects on the X axis. It also updates the `touching` variable.
@@ -337,7 +330,7 @@ class FlxObject extends FlxBasic
 				#else
 				object1.x -= overlap / 2;
 				object2.x += overlap / 2;
-
+				
 				var momentum = mass1 * vel1 + mass2 * vel2;
 				var newVel1 = (momentum + elasticity1 * mass2 * (vel2 - vel1)) / massSum;
 				var newVel2 = (momentum + elasticity2 * mass1 * (vel1 - vel2)) / massSum;
@@ -519,7 +512,7 @@ class FlxObject extends FlxBasic
 				#else
 				object1.y -= overlap / 2;
 				object2.y += overlap / 2;
-
+				
 				var momentum = mass1 * vel1 + mass2 * vel2;
 				var newVel1 = (momentum + elasticity1 * mass2 * (vel2 - vel1)) / massSum;
 				var newVel2 = (momentum + elasticity2 * mass1 * (vel1 - vel2)) / massSum;
@@ -619,7 +612,7 @@ class FlxObject extends FlxBasic
 	 * Set this to `false` if you want to skip the automatic motion/movement stuff (see `updateMotion()`).
 	 * `FlxObject` and `FlxSprite` default to `true`. `FlxText`, `FlxTileblock` and `FlxTilemap` default to `false`.
 	 */
-	public var moves(default, set):Bool = defaultMoves;
+	public var moves(default, set):Bool = true;
 
 	/**
 	 * Whether an object will move/alter position after a collision.
@@ -1108,7 +1101,7 @@ class FlxObject extends FlxBasic
 	{
 		if (result == null)
 			result = FlxPoint.get();
-
+		
 		return result.set(x, y);
 	}
 
@@ -1150,8 +1143,6 @@ class FlxObject extends FlxBasic
 		revive();
 	}
 
-	public var forceIsOnScreen:Bool = false;
-
 	/**
 	 * Check and see if this object is currently on screen.
 	 *
@@ -1161,9 +1152,6 @@ class FlxObject extends FlxBasic
 	 */
 	public function isOnScreen(?camera:FlxCamera):Bool
 	{
-		if (forceIsOnScreen)
-			return true;
-
 		if (camera == null)
 			camera = FlxG.camera;
 
@@ -1348,7 +1336,7 @@ class FlxObject extends FlxBasic
 
 		return _rect;
 	}
-
+	
 	/**
 	 * Calculates the smallest globally aligned bounding box that encompasses this
 	 * object's width and height, at its current rotation.
@@ -1362,7 +1350,7 @@ class FlxObject extends FlxBasic
 	{
 		if (newRect == null)
 			newRect = FlxRect.get();
-
+		
 		newRect.set(x, y, width, height);
 		return newRect.getRotatedBounds(angle, null, newRect);
 	}
@@ -1528,7 +1516,7 @@ class FlxObject extends FlxBasic
 /**
  * Determines when to apply collision drag to one object that collided with another.
  */
-enum abstract CollisionDragType(ByteUInt)
+@:enum abstract CollisionDragType(Int)
 {
 	/** Never drags on colliding objects. */
 	var NEVER = 0;

@@ -1,6 +1,6 @@
 package flixel.graphics.frames;
 
-import openfl.display.BitmapData;
+import flash.display.BitmapData;
 import haxe.Json;
 import massive.munit.Assert;
 

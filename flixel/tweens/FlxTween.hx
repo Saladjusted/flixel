@@ -1,6 +1,5 @@
 package flixel.tweens;
 
-import flixel.FlxTypes;
 import flixel.tweens.misc.ShakeTween;
 import flixel.util.FlxAxes;
 import flixel.FlxG;
@@ -24,7 +23,7 @@ import flixel.util.FlxDestroyUtil.IFlxDestroyable;
 import flixel.math.FlxPoint;
 
 /** @since 4.5.0 **/
-enum abstract FlxTweenType(ByteUInt) from ByteUInt to ByteUInt
+@:enum abstract FlxTweenType(Int) from Int to Int
 {
 	/**
 	 * Persistent Tween type, will stop when it finishes.
@@ -821,7 +820,7 @@ class FlxTween implements IFlxDestroyable
 	{
 		return false;
 	}
-
+	
 	/**
 	 * Set both type of delays for this tween.
 	 *
@@ -1355,7 +1354,7 @@ class FlxTweenManager extends FlxBasic
 	 */
 	public function cancelTweensOf(Object:Dynamic, ?FieldPaths:Array<String>):Void
 	{
-		forEachTweensOf(Object, FieldPaths, function(tween) tween.cancel());
+		forEachTweensOf(Object, FieldPaths, function (tween) tween.cancel());
 	}
 
 	/**
@@ -1381,11 +1380,13 @@ class FlxTweenManager extends FlxBasic
 	 */
 	public function completeTweensOf(Object:Dynamic, ?FieldPaths:Array<String>):Void
 	{
-		forEachTweensOf(Object, FieldPaths, function(tween)
-		{
-			if ((tween.type & FlxTweenType.LOOPING) == 0 && (tween.type & FlxTweenType.PINGPONG) == 0 && tween.active)
-				tween.update(FlxMath.MAX_VALUE_FLOAT);
-		});
+		forEachTweensOf(Object, FieldPaths,
+			function (tween)
+			{
+				if ((tween.type & FlxTweenType.LOOPING) == 0 && (tween.type & FlxTweenType.PINGPONG) == 0 && tween.active)
+					tween.update(FlxMath.MAX_VALUE_FLOAT);
+			}
+		);
 	}
 
 	/**
@@ -1404,7 +1405,7 @@ class FlxTweenManager extends FlxBasic
 	{
 		if (Object == null)
 			throw "Cannot cancel tween variables of an object that is null.";
-
+		
 		if (FieldPaths == null || FieldPaths.length == 0)
 		{
 			var i = _tweens.length;
@@ -1430,11 +1431,11 @@ class FlxTweenManager extends FlxBasic
 					if (!Reflect.isObject(target))
 						break;
 				}
-
+				
 				if (Reflect.isObject(target))
-					propertyInfos.push({object: target, field: field});
+					propertyInfos.push({ object:target, field:field });
 			}
-
+			
 			var i = _tweens.length;
 			while (i-- > 0)
 			{
@@ -1446,7 +1447,7 @@ class FlxTweenManager extends FlxBasic
 						Function(tween);
 						break;
 					}
-				}
+				} 
 			}
 		}
 	}

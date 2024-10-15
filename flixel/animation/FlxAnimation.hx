@@ -1,7 +1,6 @@
 package flixel.animation;
 
 import flixel.FlxG;
-import flixel.util.FlxSignal.FlxTypedSignal;
 
 /**
  * Just a helper structure for the `FlxSprite` animation system.
@@ -42,12 +41,6 @@ class FlxAnimation extends FlxBaseAnimation
 	 * Whether the current animation has finished.
 	 */
 	public var finished(default, null):Bool = true;
-
-	/**
-	 * Whether the current animation is at the end aka the last frame.
-	 * Works both when looping and reversed.
-	**/
-	public var isAtEnd(get, never):Bool;
 
 	/**
 	 * Whether the current animation gets updated or not.
@@ -95,8 +88,6 @@ class FlxAnimation extends FlxBaseAnimation
 	 * Internal, used to time each frame of animation.
 	 */
 	var _frameTimer:Float = 0;
-
-	public var onFinish:FlxTypedSignal<Void->Void> = new FlxTypedSignal();
 
 	/**
 	 * @param   name        What this animation should be called (e.g. `"run"`).
@@ -275,12 +266,8 @@ class FlxAnimation extends FlxBaseAnimation
 
 		curIndex = frames[curFrame];
 
-		if (finished)
-		{
-			onFinish.dispatch();
-			if (parent != null)
-				parent.fireFinishCallback(name);
-		}
+		if (finished && parent != null)
+			parent.fireFinishCallback(name);
 
 		return frame;
 	}
@@ -298,9 +285,5 @@ class FlxAnimation extends FlxBaseAnimation
 	inline function set_delay(value:Float)
 	{
 		return frameDuration = value;
-	}
-
-	inline function get_isAtEnd() {
-		return reversed ? curFrame == 0 : curFrame == numFrames - 1;
 	}
 }

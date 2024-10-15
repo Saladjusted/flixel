@@ -46,17 +46,17 @@ class FlxAngle
 		return Context.makeExpr(table, Context.currentPos());
 	}
 
+	#if !macro
 	/**
 	 * Convert radians to degrees by multiplying it with this value.
 	 */
-	public static inline final TO_DEG:Float = 57.29577951308232; // 180 / Math.PI;
+	public static var TO_DEG(get, never):Float;
 
 	/**
 	 * Convert degrees to radians by multiplying it with this value.
 	 */
-	public static inline final TO_RAD:Float = 0.017453292519943295; // Math.PI / 180;
+	public static var TO_RAD(get, never):Float;
 
-	#if !macro
 	/**
 	 * Calculates the angle from (0, 0) to (x, y), in radians
 	 * @param x The x distance from the origin
@@ -88,7 +88,10 @@ class FlxAngle
 	 */
 	public static inline function angleFromOrigin(x:Float, y:Float, asDegrees:Bool = false)
 	{
-		return if (asDegrees) Math.atan2(y, x) * TO_DEG; else Math.atan2(y, x);
+		return if (asDegrees)
+				Math.atan2(y, x) * TO_DEG;
+			else
+				Math.atan2(y, x);
 	}
 
 	/**

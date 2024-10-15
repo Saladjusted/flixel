@@ -1,7 +1,7 @@
 package flixel.system.debug.interaction.tools;
 
-import openfl.display.BitmapData;
-import openfl.display.Sprite;
+import flash.display.BitmapData;
+import flash.display.Sprite;
 import flixel.system.debug.interaction.Interaction;
 import flixel.system.ui.FlxSystemButton;
 import flixel.util.FlxDestroyUtil.IFlxDestroyable;

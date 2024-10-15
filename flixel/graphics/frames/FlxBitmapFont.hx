@@ -1,8 +1,8 @@
 package flixel.graphics.frames;
 
-import openfl.display.BitmapData;
-import openfl.geom.Point;
-import openfl.geom.Rectangle;
+import flash.display.BitmapData;
+import flash.geom.Point;
+import flash.geom.Rectangle;
 import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxFrame.FlxFrameAngle;
@@ -452,7 +452,8 @@ class FlxBitmapFont extends FlxFramesCollection
 	 * @param   spacing   Spaces between characters in the font set. Default is `null` which means no spaces.
 	 * @return  Generated bitmap font object.
 	 */
-	public static function fromMonospace(source:FlxBitmapFontGraphicAsset, ?letters:String, charSize:FlxPoint, ?region:FlxRect, ?spacing:FlxPoint):FlxBitmapFont
+	public static function fromMonospace(source:FlxBitmapFontGraphicAsset, ?letters:String, charSize:FlxPoint, ?region:FlxRect,
+			?spacing:FlxPoint):FlxBitmapFont
 	{
 		var graphic:FlxGraphic = null;
 		var frame:FlxFrame = null;

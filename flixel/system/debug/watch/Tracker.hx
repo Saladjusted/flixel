@@ -1,10 +1,10 @@
 package flixel.system.debug.watch;
 
 #if FLX_DEBUG
-import openfl.display.DisplayObject;
-import openfl.geom.Matrix;
-import openfl.geom.Point;
-import openfl.geom.Rectangle;
+import flash.display.DisplayObject;
+import flash.geom.Matrix;
+import flash.geom.Point;
+import flash.geom.Rectangle;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -160,7 +160,8 @@ class Tracker extends Watch
 				"pressed",
 				"justPressed",
 				"justReleased"
-				#if FLX_MOUSE_ADVANCED, "pressedMiddle", "justPressedMiddle", "justReleasedMiddle", "pressedRight", "justPressedRight", "justReleasedRight" #end
+				#if FLX_MOUSE_ADVANCED, "pressedMiddle", "justPressedMiddle", "justReleasedMiddle", "pressedRight", "justPressedRight", "justReleasedRight"
+				#end
 			], [FlxBasePoint]));
 			#end
 			#if FLX_TOUCH

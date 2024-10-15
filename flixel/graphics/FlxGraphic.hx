@@ -1,6 +1,6 @@
 package flixel.graphics;
 
-import openfl.display.BitmapData;
+import flash.display.BitmapData;
 import flixel.FlxG;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.graphics.frames.FlxFrame;
@@ -11,6 +11,9 @@ import flixel.math.FlxRect;
 import flixel.system.FlxAssets;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
+#if !FLX_DRAW_QUADS
+import openfl.display.Tilesheet;
+#end
 
 /**
  * `BitmapData` wrapper which is used for rendering.
@@ -20,7 +23,6 @@ class FlxGraphic implements IFlxDestroyable
 {
 	@:allow(flixel.system.frontEnds.BitmapFrontEnd)
 	private var mustDestroy:Bool = false;
-
 	/**
 	 * The default value for the `persist` variable at creation if none is specified in the constructor.
 	 * @see [FlxGraphic.persist](https://api.haxeflixel.com/flixel/graphics/FlxGraphic.html#persist)
@@ -317,23 +319,21 @@ class FlxGraphic implements IFlxDestroyable
 	public var isLoaded(get, never):Bool;
 
 	/**
-	 * Whether `destroy` was called on this graphic
-	 * @since 5.6.0
-	 */
-	public var isDestroyed(get, never):Bool;
-
-	/**
 	 * Whether the `BitmapData` of this graphic object can be dumped for decreased memory usage,
 	 * but may cause some issues (when you need direct access to pixels of this graphic.
 	 * If the graphic is dumped then you should call `undump()` and have total access to pixels.
 	 */
 	public var canBeDumped(get, never):Bool;
 
-	/**
-	 * GLSL shader for this graphic. Only used if utilizing sprites do not define a shader
-	 * Avoid changing it frequently as this is a costly operation.
-	 */
+	#if FLX_DRAW_QUADS
 	public var shader(default, null):FlxShader;
+	#else
+
+	/**
+	 * Tilesheet for this graphic object. It is used only for `FlxG.renderTile` mode.
+	 */
+	public var tilesheet(get, never):Tilesheet;
+	#end
 
 	/**
 	 * Usage counter for this `FlxGraphic` object.
@@ -377,6 +377,14 @@ class FlxGraphic implements IFlxDestroyable
 	 */
 	var _imageFrame:FlxImageFrame;
 
+	#if !FLX_DRAW_QUADS
+	/**
+	 * Internal var holding Tilesheet for bitmap of this graphic.
+	 * It is used only in `FlxG.renderTile` mode
+	 */
+	var _tilesheet:Tilesheet;
+	#end
+
 	var _useCount:Int = 0;
 
 	var _destroyOnNoUse:Bool = true;
@@ -389,16 +397,18 @@ class FlxGraphic implements IFlxDestroyable
 	 * @param   Persist   Whether or not this graphic stay in the cache after resetting it.
 	 *                    Default value is `false`, which means that this graphic will be destroyed at the cache reset.
 	 */
-	function new(key:String, bitmap:BitmapData, ?persist:Bool)
+	function new(Key:String, Bitmap:BitmapData, ?Persist:Bool)
 	{
-		this.key = key;
-		this.persist = (persist != null) ? persist : defaultPersist;
+		key = Key;
+		persist = (Persist != null) ? Persist : defaultPersist;
 
 		frameCollections = new Map<FlxFrameCollectionType, Array<Dynamic>>();
 		frameCollectionTypes = new Array<FlxFrameCollectionType>();
-		this.bitmap = bitmap;
+		bitmap = Bitmap;
 
+		#if FLX_DRAW_QUADS
 		shader = new FlxShader();
+		#end
 	}
 
 	/**
@@ -463,7 +473,12 @@ class FlxGraphic implements IFlxDestroyable
 	{
 		bitmap = FlxDestroyUtil.dispose(bitmap);
 
+		#if FLX_DRAW_QUADS
 		shader = null;
+		#else
+		if (FlxG.renderTile)
+			_tilesheet = null;
+		#end
 
 		key = null;
 		assetsKey = null;
@@ -495,11 +510,6 @@ class FlxGraphic implements IFlxDestroyable
 		{
 			var collections:Array<Dynamic> = getFramesCollections(collection.type);
 			collections.push(collection);
-
-			#if EXPERIMENTAL_FLXGRAPHIC_DESTROY_FIX
-			if (!frameCollectionTypes.contains(collection.type))
-				frameCollectionTypes.push(collection.type);
-			#end
 		}
 	}
 
@@ -516,11 +526,6 @@ class FlxGraphic implements IFlxDestroyable
 		{
 			collections = new Array<FlxFramesCollection>();
 			frameCollections.set(type, collections);
-
-			#if EXPERIMENTAL_FLXGRAPHIC_DESTROY_FIX
-			if (!frameCollectionTypes.contains(type))
-				frameCollectionTypes.push(type);
-			#end
 		}
 		return collections;
 	}
@@ -541,6 +546,29 @@ class FlxGraphic implements IFlxDestroyable
 		return frame;
 	}
 
+	#if !FLX_DRAW_QUADS
+	/**
+	 * Tilesheet getter. Generates new one (and regenerates) if there is no tilesheet for this graphic yet.
+	 */
+	function get_tilesheet():Tilesheet
+	{
+		if (_tilesheet == null)
+		{
+			var dumped:Bool = isDumped;
+
+			if (dumped)
+				undump();
+
+			_tilesheet = new Tilesheet(bitmap);
+
+			if (dumped)
+				dump();
+		}
+
+		return _tilesheet;
+	}
+	#end
+
 	/**
 	 * Gets the `BitmapData` for this graphic object from OpenFL.
 	 * This method is used for undumping graphic.
@@ -558,15 +586,10 @@ class FlxGraphic implements IFlxDestroyable
 
 		return null;
 	}
-
+	
 	inline function get_isLoaded()
 	{
 		return bitmap != null && !bitmap.rect.isEmpty();
-	}
-
-	inline function get_isDestroyed()
-	{
-		return shader == null;
 	}
 
 	inline function get_canBeDumped():Bool
@@ -620,6 +643,10 @@ class FlxGraphic implements IFlxDestroyable
 			bitmap = value;
 			width = bitmap.width;
 			height = bitmap.height;
+			#if (!flash && !FLX_DRAW_QUADS)
+			if (FlxG.renderTile && _tilesheet != null)
+				_tilesheet = new Tilesheet(bitmap);
+			#end
 		}
 
 		return value;
